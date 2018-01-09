@@ -1,0 +1,29 @@
+From c70c9a0cfde0fb5b7c68002cbff284021e9f874a Mon Sep 17 00:00:00 2001
+From: Volker Krause <volker.krause@kdab.com>
+Date: Wed, 5 Apr 2017 16:18:37 +0200
+Subject: [PATCH] Deal with QQC2 namespace-only type-names
+
+If we encounter something that is namespace-only, just fall through here,
+the fallback names we determine below work better in that case.
+---
+ plugins/qmlsupport/qmlsupport.cpp | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/plugins/qmlsupport/qmlsupport.cpp b/plugins/qmlsupport/qmlsupport.cpp
+index 23645bcd..ab97801f 100644
+--- a/plugins/qmlsupport/qmlsupport.cpp
++++ b/plugins/qmlsupport/qmlsupport.cpp
+@@ -197,7 +197,9 @@ QString QmlObjectDataProvider::typeName(QObject *obj) const
+ 
+     // C++ QML type
+     auto qmlType = QQmlMetaType::qmlType(obj->metaObject());
+-    if (qmlType)
++    // QQC2 has some weird types with only the namespace (that is, ending in '/')
++    // we get better results below, so ignore this case here
++    if (qmlType && !qmlType->qmlTypeName().endsWith(QLatin1Char('/')))
+         return qmlType->qmlTypeName();
+ 
+     // QML defined type
+-- 
+2.14.1
+

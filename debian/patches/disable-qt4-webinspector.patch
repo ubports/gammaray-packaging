@@ -1,0 +1,37 @@
+From: Jakub Adam <jakub.adam@ktknet.cz>
+Date: Wed, 1 Jul 2015 19:55:52 +0200
+Subject: disable-qt4-webinspector
+
+---
+ CMakeLists.txt         | 2 +-
+ plugins/CMakeLists.txt | 4 +++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index c843783..c87f69a 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -325,7 +325,7 @@ else()
+     # minimum set
+     find_package(Qt4 4.8.0 REQUIRED QtCore QtGui QtNetwork)
+   endif()
+-  find_package(Qt4 4.8.0 QUIET COMPONENTS QtScript QtScriptTools QtWebKit QtDesigner QtSvg QtTest)
++  find_package(Qt4 4.8.0 QUIET COMPONENTS QtScript QtScriptTools QtDesigner QtSvg QtTest)
+ 
+   include(${QT_USE_FILE})
+   set(HAVE_QT_CONCURRENT true)
+diff --git a/plugins/CMakeLists.txt b/plugins/CMakeLists.txt
+index 34b5bd4..a21bc69 100644
+--- a/plugins/CMakeLists.txt
++++ b/plugins/CMakeLists.txt
+@@ -6,7 +6,9 @@ add_subdirectory(quickinspector)
+ add_subdirectory(signalmonitor)
+ add_subdirectory(statemachineviewer)
+ add_subdirectory(timertop)
+-add_subdirectory(webinspector)
++if (Qt5Core_FOUND)
++  add_subdirectory(webinspector)
++endif()
+ 
+ if(Qt5Core_FOUND)
+   add_subdirectory(mimetypes)

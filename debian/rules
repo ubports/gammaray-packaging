@@ -1,0 +1,53 @@
+#!/usr/bin/make -f
+
+.PHONY: override_dh_auto_configure override_dh_auto_build override_dh_auto_test override_dh_auto_install override_dh_installdocs
+
+export DEB_LDFLAGS_MAINT_APPEND=-Wl,--as-needed
+export DEB_BUILD_MAINT_OPTIONS=hardening=+all
+
+# Give the build more time to finish the test suite.
+# Timeouts have been appearing on buildd machines for some architectures.
+export GAMMARAY_LAUNCHER_TIMEOUT=240
+
+DEB_HOST_ARCH ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
+
+%:
+	dh $@ --parallel
+
+CMAKE_FLAGS=-DCMAKE_INSTALL_RPATH_USE_LINK_PATH=FALSE -DGAMMARAY_BUILD_DOCS=false
+override_dh_auto_configure:
+	dh_auto_configure -B obj-qt5 -- $(CMAKE_FLAGS)
+	dh_auto_configure -B obj-qt4 -- $(CMAKE_FLAGS) -DGAMMARAY_ENFORCE_QT4_BUILD=ON -DGAMMARAY_PROBE_ONLY_BUILD=ON -DCMAKE_DISABLE_FIND_PACKAGE_VTK=True
+
+override_dh_auto_build:
+	QT_SELECT=5 dh_auto_build -B obj-qt5 -O--parallel
+	dh_auto_build -B obj-qt4 -O--parallel
+
+override_dh_auto_test:
+# tests fail on kfreebsd because of bug #570805: Wrong path in /proc/pid/maps when bind mounted
+ifneq (,$(filter $(DEB_HOST_ARCH), kfreebsd-amd64 kfreebsd-i386))
+	xvfb-run -a -s "-screen 0 640x480x24" dh_auto_test --max-parallel=1 -B obj-qt5 || true
+# attachtest-gdb is unstable on s90x and hangs builds
+else ifeq ($(DEB_HOST_ARCH), s390x)
+	xvfb-run -a -s "-screen 0 640x480x24" dh_auto_test --max-parallel=1 -B obj-qt5 -- ARGS="-V -E attachtest-gdb"
+else
+	xvfb-run -a -s "-screen 0 640x480x24" dh_auto_test --max-parallel=1 -B obj-qt5 -- ARGS="-V"
+endif
+
+override_dh_auto_install:
+	dh_auto_install -B obj-qt5
+	dh_auto_install -B obj-qt4
+	rm -f debian/tmp/usr/share/doc/gammaray/LICENSE.*
+
+override_dh_auto_clean:
+	dh_auto_clean -B obj-qt5
+	dh_auto_clean -B obj-qt4
+
+override_dh_installdocs:
+	dh_installdocs --link-doc=gammaray
+
+VERSION=$(shell dpkg-parsechangelog -S Version | cut -d- -f1)
+get-orig-source:
+	uscan --force-download --download-version $(VERSION) \
+		--rename --destdir=$(CURDIR) \
+		--repack --compression xz

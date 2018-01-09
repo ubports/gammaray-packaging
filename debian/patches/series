@@ -1,0 +1,7 @@
+0001-Deal-with-QQC2-namespace-only-type-names.patch
+0002-Adapt-to-QQmlType-changes-in-Qt-5.9.2.patch
+skip-test-failing-prior-qt57.patch
+debian-archs-fix-build.patch
+fix-objectvisualizer-build.patch
+disable-qt4-objectvisualizer.patch
+disable-qt4-webinspector.patch

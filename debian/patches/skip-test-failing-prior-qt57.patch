@@ -1,0 +1,43 @@
+From: Jakub Adam <jakub.adam@ktknet.cz>
+Date: Tue, 26 Jul 2016 15:03:51 +0200
+Subject: skip-test-failing-prior-qt57
+
+---
+ tests/quickinspectortest.cpp | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
+
+diff --git a/tests/quickinspectortest.cpp b/tests/quickinspectortest.cpp
+index 0e23e3b..7f85b8e 100644
+--- a/tests/quickinspectortest.cpp
++++ b/tests/quickinspectortest.cpp
+@@ -104,6 +104,19 @@ private:
+         return !exposed || waitForSignal(&renderSpy);
+     }
+ 
++    bool checkQtVersion(int major, int minor, int patch)
++    {
++        QStringList parts(QString::fromUtf8(qVersion()).split("."));
++        if (parts.size() != 3) {
++                return false;
++        }
++
++        quint32 version = major << 16 | minor << 8 | patch;
++        quint32 runtimeVersion = parts[0].toInt() << 16 | parts[1].toInt() << 8 | parts[2].toInt();
++
++        return runtimeVersion >= version;
++    }
++
+ private slots:
+     void initTestCase()
+     {
+@@ -228,6 +241,10 @@ private slots:
+ 
+     void testFetchingPreview()
+     {
++        if (!checkQtVersion(5, 7, 0)) {
++            QSKIP("This test is known to fail with Qt < 5.7");
++        }
++
+         auto remoteView
+             = ObjectBroker::object<RemoteViewInterface *>(QStringLiteral(
+                                                               "com.kdab.GammaRay.QuickRemoteView"));

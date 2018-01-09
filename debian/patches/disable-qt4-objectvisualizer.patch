@@ -1,0 +1,20 @@
+From: Jakub Adam <jakub.adam@ktknet.cz>
+Date: Sat, 7 Feb 2015 13:48:20 +0100
+Subject: disable-qt4-objectvisualizer
+
+---
+ plugins/CMakeLists.txt | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/plugins/CMakeLists.txt b/plugins/CMakeLists.txt
+index ed25023..ae7a888 100644
+--- a/plugins/CMakeLists.txt
++++ b/plugins/CMakeLists.txt
+@@ -14,7 +14,6 @@ if(Qt5Core_FOUND)
+   add_subdirectory(qtivi)
+   add_subdirectory(translatorinspector)
+   add_subdirectory(wlcompositorinspector)
+-else()
+   add_subdirectory(objectvisualizer)
+ endif()
+ 
