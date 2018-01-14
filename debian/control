@@ -31,6 +31,7 @@ Build-Depends: debhelper (>= 9),
                libgraphviz-dev,
                libvtk6-qt-dev [!armel !armhf],
                libwayland-dev (>= 1.12.0),
+               libproj-dev,
                gdb,
                xauth,
                xvfb
